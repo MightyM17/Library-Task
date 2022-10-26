@@ -43,6 +43,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
   }
 
+  void delData(String uid) async{
+    DatabaseReference _ref = FirebaseDatabase(databaseURL: "https://library-task-default-rtdb.asia-southeast1.firebasedatabase.app/").ref().child('Users/$uid');
+    await _ref.remove();
+  }
+
   @override
   void initState() {
     super.initState();
