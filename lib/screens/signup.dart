@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:library_task/screens/signin.dart';
 import 'package:library_task/screens/util/reuuse.dart';
 import 'package:library_task/screens/home.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+  import 'package:firebase_auth/firebase_auth.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -14,6 +15,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController _pass = TextEditingController();
   TextEditingController _email = TextEditingController();
   TextEditingController _user = TextEditingController();
+  var _error = '';
 
   @override
   Widget build(BuildContext context) {
@@ -30,18 +32,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
               SizedBox(height: 20,),
               inputText('Password', Icons.person_outline, true, _pass),
               SizedBox(height: 20,),
-              singInUp(context, true, () {
+              singInUp(context, false, () {
                 FirebaseAuth.instance.createUserWithEmailAndPassword(
                     email: _email.text,
                     password: _pass.text,
                 ).then((value) {
-                  print("New Acc made!");
+                  setState(() => _error = 'Signed Up Successfully');
+                  print(_error);
                   Navigator.push(context,
                       MaterialPageRoute(builder: (builder) => HomePage()));
                 }).onError((error, stackTrace) {
-                  print(error.toString());
+                  setState(() => _error = error.toString());
+                  print(_error);
                 });
               }),
+              SizedBox(height: 20,),
+              Text(
+                _error,
+                style: TextStyle(color: Colors.red,),
+              ),
               SizedBox(height: 20,),
               signIn(),
             ],
@@ -60,7 +69,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         GestureDetector(
           onTap: () {
             Navigator.push(context,
-                MaterialPageRoute(builder: (context) => SignUpScreen()));
+                MaterialPageRoute(builder: (context) => SignInScreen()));
           },
           child: Text("Sign In!",
             style: TextStyle(color: Colors.blue),),

@@ -14,6 +14,7 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   TextEditingController _pass = TextEditingController();
   TextEditingController _email = TextEditingController();
+  var _error = '';
 
   @override
   Widget build(BuildContext context) {
@@ -31,13 +32,21 @@ class _SignInScreenState extends State<SignInScreen> {
               singInUp(context, true, () {
                 FirebaseAuth.instance.signInWithEmailAndPassword(email: _email.text, password: _pass.text).then((value)
                 {
-                  print("Signed In");
+                  setState(() => _error = 'Signed In Successfully');
+                  print(_error);
                   Navigator.push(context,
                       MaterialPageRoute(builder: (builder) => HomePage()));
                 }).onError((error, stackTrace){
-                  print(error.toString());
+                  _error = error.toString();
+                  setState(() => _error = error.toString());
+                  print(_error);
                 });
               }),
+              SizedBox(height: 20,),
+              Text(
+                _error,
+                style: TextStyle(color: Colors.red,),
+              ),
               SizedBox(height: 20,),
               signUp(),
             ],
@@ -51,7 +60,7 @@ class _SignInScreenState extends State<SignInScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text("Do not have an account?",
+        Text("Do not have an account? ",
           style: TextStyle(color: Colors.black),),
         GestureDetector(
           onTap: () {
