@@ -3,6 +3,7 @@ import 'package:library_task/screens/home.dart';
 import 'package:library_task/screens/signup.dart';
 import 'package:library_task/screens/util/reuuse.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({Key? key}) : super(key: key);
@@ -15,6 +16,31 @@ class _SignInScreenState extends State<SignInScreen> {
   TextEditingController _pass = TextEditingController();
   TextEditingController _email = TextEditingController();
   var _error = '';
+  late DatabaseReference _dbref;
+
+  @override
+  void initState() {
+    super.initState();
+    _dbref = FirebaseDatabase.instance.ref();
+  }
+
+  _createDB() {
+    Map<String, String> user = {
+      'uuid' : '12345',
+      'book' : 'Loolol',
+    };
+    _dbref.child('Test').set('Tested');
+    _dbref.child('User').set(user);
+    print("done");
+  }
+
+  _readDB() {
+    _dbref.once().then((event) {
+      final dataSnapshot = event.snapshot;
+      print("test");
+      print("read - "+ dataSnapshot.value.toString());
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +63,13 @@ class _SignInScreenState extends State<SignInScreen> {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (builder) => HomePage()));
                 }).onError((error, stackTrace){
-                  _error = error.toString();
+                  /*
+                    if (e.code == 'user-not-found') {
+                        print('No user found for that email.');
+                    } else if (e.code == 'wrong-password') {
+                      print('Wrong password provided for that user.');
+                    }
+                   */
                   setState(() => _error = error.toString());
                   print(_error);
                 });
@@ -64,6 +96,8 @@ class _SignInScreenState extends State<SignInScreen> {
           style: TextStyle(color: Colors.black),),
         GestureDetector(
           onTap: () {
+            _createDB();
+            _readDB();
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => SignUpScreen()));
           },
