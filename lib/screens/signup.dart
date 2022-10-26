@@ -1,8 +1,11 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:library_task/models/model.dart';
+import 'package:library_task/realtime/managedb.dart';
 import 'package:library_task/screens/signin.dart';
-import 'package:library_task/screens/util/reuuse.dart';
+import 'package:library_task/util/reuuse.dart';
 import 'package:library_task/screens/home.dart';
-  import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -16,6 +19,36 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController _email = TextEditingController();
   TextEditingController _user = TextEditingController();
   var _error = '';
+  late DatabaseReference _dbref;
+  var user = FirebaseAuth.instance.currentUser;
+
+  List<Person> personList = [];
+
+  void retrieveData() async {
+    //Stream or once?
+    Stream<DatabaseEvent> stream = _dbref.onValue;
+
+    stream.listen((DatabaseEvent event) {
+      print('Event Type: ${event.type}'); // DatabaseEventType.value;
+      print('Snapshot: ${event.snapshot}'); // DataSnapshot
+      print(event.snapshot.value);
+    });
+  }
+
+  void modifyData(String uid) async{
+    DatabaseReference _ref = FirebaseDatabase(databaseURL: "https://library-task-default-rtdb.asia-southeast1.firebasedatabase.app/").ref().child('Users/$uid');
+    await _ref.set({
+      'books' : ['Harry Potter 909090',],
+      'fav' : ['Wimpy Kid 909090',],
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _dbref = FirebaseDatabase(databaseURL: "https://library-task-default-rtdb.asia-southeast1.firebasedatabase.app/").ref().child('Users');
+    retrieveData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +71,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     password: _pass.text,
                 ).then((value) {
                   setState(() => _error = 'Signed Up Successfully');
+                  String uid = (FirebaseAuth.instance.currentUser?.uid).toString();
                   print(_error);
+                  createDB(_dbref, uid);
+                  modifyData(uid);
                   Navigator.push(context,
                       MaterialPageRoute(builder: (builder) => HomePage()));
                 }).onError((error, stackTrace) {
