@@ -20,39 +20,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController _user = TextEditingController();
   var _error = '';
   late DatabaseReference _dbref;
+  late FirebaseDatabase _fbref;
   var user = FirebaseAuth.instance.currentUser;
 
   List<Person> personList = [];
 
-  void retrieveData() async {
-    //Stream or once?
-    Stream<DatabaseEvent> stream = _dbref.onValue;
-
-    stream.listen((DatabaseEvent event) {
-      print('Event Type: ${event.type}'); // DatabaseEventType.value;
-      print('Snapshot: ${event.snapshot}'); // DataSnapshot
-      print(event.snapshot.value);
-    });
-  }
-
-  void modifyData(String uid) async{
-    DatabaseReference _ref = FirebaseDatabase(databaseURL: "https://library-task-default-rtdb.asia-southeast1.firebasedatabase.app/").ref().child('Users/$uid');
-    await _ref.set({
-      'books' : ['Harry Potter 909090',],
-      'fav' : ['Wimpy Kid 909090',],
-    });
-  }
-
-  void delData(String uid) async{
-    DatabaseReference _ref = FirebaseDatabase(databaseURL: "https://library-task-default-rtdb.asia-southeast1.firebasedatabase.app/").ref().child('Users/$uid');
-    await _ref.remove();
-  }
-
   @override
   void initState() {
     super.initState();
-    _dbref = FirebaseDatabase(databaseURL: "https://library-task-default-rtdb.asia-southeast1.firebasedatabase.app/").ref().child('Users');
-    retrieveData();
+    //_dbref = FirebaseDatabase(databaseURL: "https://library-task-default-rtdb.asia-southeast1.firebasedatabase.app/").ref().child('Users');
+    _fbref = FirebaseDatabase(databaseURL: "https://library-task-default-rtdb.asia-southeast1.firebasedatabase.app/");
   }
 
   @override
@@ -78,8 +55,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   setState(() => _error = 'Signed Up Successfully');
                   String uid = (FirebaseAuth.instance.currentUser?.uid).toString();
                   print(_error);
-                  createDB(_dbref, uid);
-                  modifyData(uid);
+                  createDB(_fbref.ref("Users/$uid"), uid);
                   Navigator.push(context,
                       MaterialPageRoute(builder: (builder) => HomePage()));
                 }).onError((error, stackTrace) {

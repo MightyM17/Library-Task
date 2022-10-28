@@ -13,17 +13,20 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late DatabaseReference _dbref;
+  late FirebaseDatabase _fbref;
+  String uid = (FirebaseAuth.instance.currentUser?.uid).toString();
 
   @override
   void initState() {
     super.initState();
-    _dbref = FirebaseDatabase(databaseURL: "https://library-task-default-rtdb.asia-southeast1.firebasedatabase.app/").ref().child('Users');
+    _fbref = FirebaseDatabase(databaseURL: "https://library-task-default-rtdb.asia-southeast1.firebasedatabase.app/");
+    _dbref = FirebaseDatabase(databaseURL: "https://library-task-default-rtdb.asia-southeast1.firebasedatabase.app/").ref();
   }
 
   @override
   Widget build(BuildContext context) {
-    var user = FirebaseAuth.instance.currentUser;
-    print(user?.uid);
+    String uid = (FirebaseAuth.instance.currentUser?.uid).toString();
+    print("Home Screen " + uid);
     return Scaffold(
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -31,7 +34,7 @@ class _HomePageState extends State<HomePage> {
           ElevatedButton(
             child: Text("Add"),
             onPressed: () {
-              //updateDB(_dbref, user?.uid);
+              modifyData(_dbref.child('Users/$uid'));
             },
           ),
         ElevatedButton(
