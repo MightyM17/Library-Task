@@ -13,28 +13,62 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late DatabaseReference _dbref;
-  late FirebaseDatabase _fbref;
   String uid = (FirebaseAuth.instance.currentUser?.uid).toString();
+  var bookslist = '';
+  var favlist = '';
 
   @override
   void initState() {
     super.initState();
-    _fbref = FirebaseDatabase(databaseURL: "https://library-task-default-rtdb.asia-southeast1.firebasedatabase.app/");
     _dbref = FirebaseDatabase(databaseURL: "https://library-task-default-rtdb.asia-southeast1.firebasedatabase.app/").ref();
   }
 
   @override
   Widget build(BuildContext context) {
     String uid = (FirebaseAuth.instance.currentUser?.uid).toString();
-    print("Home Screen " + uid);
     return Scaffold(
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children:[
           ElevatedButton(
-            child: Text("Add"),
+            child: Text("List Books"),
+            onPressed: () async {
+              List books = await retrieveBooks(_dbref.child('Users/$uid'));
+              var stringList = books.join(", ");
+              setState(() => bookslist = stringList);
+            },
+          ),
+          ElevatedButton(
+            child: Text("List Favs"),
+            onPressed: () async {
+              List fav = await retrieveFav(_dbref.child('Users/$uid'));
+              var stringList = fav.join(", ");
+              setState(() => favlist = stringList);
+            },
+          ),
+          ElevatedButton(
+            child: Text("Add to Books"),
             onPressed: () {
-              modifyData(_dbref.child('Users/$uid'));
+              addData(_dbref.child('Users/$uid'), 'test1', false);
+            },
+          ),
+          ElevatedButton(
+            child: Text("Remove from Books"),
+            onPressed: () {
+              delData(_dbref.child('Users/$uid'), 'test1', false);
+            },
+          ),
+          ElevatedButton(
+            child: Text("Add to Fav"),
+            onPressed: () {
+              addData(_dbref.child('Users/$uid'), 'test1', true);
+            },
+          ),
+          ElevatedButton(
+            child: Text("Remove from Fav"),
+            onPressed: () {
+              delData(_dbref.child('Users/$uid'), 'test1', true);
             },
           ),
         ElevatedButton(
@@ -47,6 +81,12 @@ class _HomePageState extends State<HomePage> {
             });
           },
         ),
+          Text(
+            'Books: $bookslist',
+          ),
+          Text(
+            'Fav: $favlist',
+          ),
         ],
       ),
     );

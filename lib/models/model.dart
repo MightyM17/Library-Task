@@ -6,14 +6,12 @@ class Person{
 }
 
 class PersonData{
-  String? uuid;
   Map<String, String>? books;
   Map<String, String>? fav;
 
-  PersonData({this.uuid, this.books, this.fav});
+  PersonData({this.books, this.fav});
 
   PersonData.fromJson(Map<dynamic,dynamic> json){
-    uuid = json["uuid"];
     books = json["books"];
     books = json["fav"];
   }

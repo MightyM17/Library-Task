@@ -17,9 +17,7 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController _pass = TextEditingController();
   TextEditingController _email = TextEditingController();
-  TextEditingController _user = TextEditingController();
   var _error = '';
-  late DatabaseReference _dbref;
   late FirebaseDatabase _fbref;
   var user = FirebaseAuth.instance.currentUser;
 
@@ -28,7 +26,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   void initState() {
     super.initState();
-    //_dbref = FirebaseDatabase(databaseURL: "https://library-task-default-rtdb.asia-southeast1.firebasedatabase.app/").ref().child('Users');
     _fbref = FirebaseDatabase(databaseURL: "https://library-task-default-rtdb.asia-southeast1.firebasedatabase.app/");
   }
 
@@ -41,8 +38,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               SizedBox(height: 30,),
-              inputText('Username', Icons.email_outlined, false, _user),
-              SizedBox(height: 20,),
               inputText('Email', Icons.email_outlined, false, _email),
               SizedBox(height: 20,),
               inputText('Password', Icons.person_outline, true, _pass),
@@ -55,7 +50,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   setState(() => _error = 'Signed Up Successfully');
                   String uid = (FirebaseAuth.instance.currentUser?.uid).toString();
                   print(_error);
-                  createDB(_fbref.ref("Users/$uid"), uid);
+                  createDB(_fbref.ref("Users/$uid"));
                   Navigator.push(context,
                       MaterialPageRoute(builder: (builder) => HomePage()));
                 }).onError((error, stackTrace) {

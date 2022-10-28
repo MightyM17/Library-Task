@@ -1,34 +1,71 @@
 import 'package:firebase_database/firebase_database.dart';
 
-void createDB(DatabaseReference _dbref, String? uuid) {
+void createDB(DatabaseReference _dbref) {
   Map<String, dynamic> data = {
-    'uuid' : uuid,
     'books' : ['Harry Potter 1', 'Kumbhojkar', 'Wimpy Kid',],
     'fav' : ['Wimpy Kid',],
   };
   _dbref.set(data);
 }
 
-void retrieveData(DatabaseReference _dbref) async {
-  //Stream or once?
-  Stream<DatabaseEvent> stream = _dbref.onValue;
-
-  stream.listen((DatabaseEvent event) {
-    print('Event Type: ${event.type}'); // DatabaseEventType.value;
-    print('Snapshot: ${event.snapshot}'); // DataSnapshot
-    print(event.snapshot.value);
-  });
+Future<List> retrieveBooks(DatabaseReference _dbref) async {
+  DatabaseEvent event = await _dbref.once();
+  Map data = event.snapshot.value as Map;
+  return (data['books']);
 }
 
-void modifyData(DatabaseReference _dbref) async{
-  //DatabaseReference _ref = FirebaseDatabase(databaseURL: "https://library-task-default-rtdb.asia-southeast1.firebasedatabase.app/").ref().child('Users/$uid');
-  await _dbref.set({
-    'books' : ['Harry Potter 909090',],
-    'fav' : ['Wimpy Kid 909090',],
-  });
+Future<List> retrieveFav(DatabaseReference _dbref) async {
+  DatabaseEvent event = await _dbref.once();
+  Map data = event.snapshot.value as Map;
+  return (data['fav']);
 }
 
-void delData(DatabaseReference _dbref) async{
-  //DatabaseReference _ref = FirebaseDatabase(databaseURL: "https://library-task-default-rtdb.asia-southeast1.firebasedatabase.app/").ref().child('Users/$uid');
+void addData(DatabaseReference _dbref, String newBook, bool isFav) async{
+  DatabaseEvent event = await _dbref.once();
+  Map data = event.snapshot.value as Map;
+  if(isFav)
+    {
+      List fav = data['fav'];
+      fav = fav.toList();
+      fav.add(newBook);
+      await _dbref.update({
+        'fav' : fav,
+      });
+    }
+  else
+    {
+      List books = data['books'];
+      books = books.toList();
+      books.add(newBook);
+      await _dbref.update({
+        'books' : books,
+      });
+    }
+}
+
+void delData(DatabaseReference _dbref, String oldBook, bool isFav) async{
+  DatabaseEvent event = await _dbref.once();
+  Map data = event.snapshot.value as Map;
+  if(isFav)
+    {
+      List fav = data['fav'];
+      fav = fav.toList();
+      fav.remove(oldBook);
+      await _dbref.update({
+        'fav' : fav,
+      });
+    }
+  else
+    {
+      List books = data['books'];
+      books = books.toList();
+      books.remove(oldBook);
+      await _dbref.update({
+        'books' : books,
+      });
+    }
+}
+
+void delNode(DatabaseReference _dbref) async{
   await _dbref.remove();
 }
